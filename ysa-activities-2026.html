@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>YSA Activities</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #f4f5fb;
+      --primary: #3b82f6;
+      --primary-soft: #dbeafe;
+      --accent: #22c55e;
+      --text-main: #0f172a;
+      --text-muted: #6b7280;
+      --card-bg: #ffffff;
+      --border: #e5e7eb;
+      --radius-lg: 18px;
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-main);
+      padding: 32px 16px;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--primary);
+    }
+
+    .hero-title {
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+    }
+
+    .hero-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 520px;
+    }
+
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .pill {
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+    }
+
+    select {
+      border: none;
+      font-size: 13px;
+      outline: none;
+      background: transparent;
+      color: var(--text-main);
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .calendar-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    .calendar-month-label {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .calendar-grid {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .weekday {
+      text-align: center;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+
+    .day {
+      position: relative;
+      min-height: 52px;
+      border-radius: 14px;
+      padding: 6px 7px;
+      background: #f9fafb;
+      border: 1px solid transparent;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: default;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, border 0.1s ease, background 0.1s ease;
+    }
+
+    .day-empty {
+      background: transparent;
+      border: none;
+      pointer-events: none;
+    }
+
+    .day-number {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .day-has-activity {
+      cursor: pointer;
+      border-color: var(--primary-soft);
+      background: #fff;
+    }
+
+    .day-has-activity::after {
+      content: "";
+      position: absolute;
+      left: 7px;
+      bottom: 7px;
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .day-has-activity:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 25px rgba(15, 23, 42, 0.12);
+    }
+
+    .day-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      max-height: 30px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .details-header {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-bottom: 10px;
+    }
+
+    .details-date {
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .details-status {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #ecfdf3;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+    }
+
+    .details-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .details-body {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 12px;
+      white-space: pre-line;
+    }
+
+    .details-meta {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .details-meta {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .meta-item-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .meta-item-value {
+      font-size: 13px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .chip {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+
+    .note-box {
+      font-size: 12px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: #f9fafb;
+      border: 1px dashed var(--border);
+      color: var(--text-muted);
+    }
+
+    .muted-empty {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .btn-outline {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-outline span {
+      font-size: 14px;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        YSA Calendar
+      </div>
+      <h1 class="hero-title">
+        YSA Activities – starting December 2025
+      </h1>
+      <p class="hero-subtitle">
+        View upcoming Young Single Adult and ward activities. Click a date on the calendar to see details like time, venue, fare, and reminders.
+      </p>
+
+      <div class="controls-row">
+        <div class="pill">
+          Month
+          <select id="monthSelect">
+            <option value="11" selected>December 2025</option>
+            <!-- You can add more months later (e.g., Jan 2026, Feb 2026, etc.) -->
+          </select>
+        </div>
+        <button class="btn-outline" id="viewAllBtn">
+          <span>📋</span> View all activities for this month
+        </button>
+      </div>
+    </section>
+
+    <section class="layout">
+      <!-- CALENDAR CARD -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Monthly Calendar</div>
+            <div class="card-subtitle" id="calendarMonthLabel">
+              December 2025 · Tap a date to view activity details
+            </div>
+          </div>
+          <span class="tag">YSA & Ward</span>
+        </div>
+
+        <div class="calendar-header-row">
+          <div class="calendar-month-label" id="calendarMonthShortLabel">
+            December 2025
+          </div>
+        </div>
+
+        <div class="calendar-grid" id="calendarGrid">
+          <!-- Calendar generated by JavaScript -->
+        </div>
+        <div id="noActivitiesMessage" class="muted-empty" style="display:none;">
+          No scheduled activities yet for this month. You can add them in the script section.
+        </div>
+      </div>
+
+      <!-- DETAILS CARD -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Activity Details</div>
+            <div class="card-subtitle">
+              Click a date on the calendar to see the full information.
+            </div>
+          </div>
+        </div>
+
+        <div id="detailsContainer">
+          <p class="muted-empty">
+            Walang date na naka-select. Click on a calendar date with a green dot to see the activity details.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // YEAR is 2025 for now
+    const YEAR = 2025;
+
+    // ACTIVITY DATA – starting with December 2025
+    // Key = month index (11 = December), then date.
+    // A date can have ONE object, or an ARRAY of objects if maraming activity sa isang araw.
+    const activities = {
+      11: {
+        // December 8 – TWO activities (temple trip + YSA Christmas party)
+        8: [
+          {
+            title: "Antipolo 1st – Alabang Temple Trip",
+            dateLabel: "December 8, 2025 (Monday)",
+            time: "6:00 AM",
+            venue: "-",
+            description:
+                  `Ward Temple Trip (Antipolo 1st).
+                  Food: Bring packed lunch, sandwich, and juice snacks.
+
+                  Fare:
+                  • Primary & Youth – FREE
+                  • Adults – ₱200
+                                    `,
+            dressCode: "Sunday best / Temple appropriate",
+            contact: "Ward Leaders",
+            tags: ["Temple Trip", "Antipolo 1st Ward", "Family Activity"]
+          },
+          {
+            title: "Stake YSA Christmas Party",
+            dateLabel: "December 8, 2025 (Monday)",
+            time: "TBA",
+            venue: "Stake Center",
+            description:
+                    `Stake-wide YSA Christmas celebration.
+                    Program, games, and activities will be announced.`,
+            dressCode: "Modest attire",
+            contact: "Stake YSA Committee",
+            tags: ["YSA", "Christmas", "Stake Activity"]
+          }
+        ],
+
+        // December 12 – YSA 26+ / RMs Bowling
+        12: {
+          title: "YSA 26+ & RMs Bowling Night",
+          dateLabel: "December 12, 2025",
+          time: "7:00 PM",
+          venue: "Astral Haven",
+          description:
+`Bowling night and bonding activity for YSA ages 26 and above, including Returned Missionaries.`,
+          dressCode: "Casual",
+          contact: "Respective YSA Rep.",
+          tags: ["YSA 26+", "Bowling", "RM Activity"]
+        },
+
+        // December 17 – Stake YSA Temple Trip
+        17: {
+          title: "Stake YSA Temple Trip",
+          dateLabel: "December 17, 2025",
+          time: "3:00 PM",
+          venue: "Manila Philippines Temple",
+          description:
+                `Stake YSA temple trip.
+                Please arrive 30 minutes early for coordination.`,
+          dressCode: "Sunday best / Temple appropriate",
+          contact: "Stake YSA Leaders",
+          tags: ["Temple Trip", "Stake YSA"]
+        },
+
+        // December 19 – Ward Christmas Party
+        19: {
+          title: "Ward Christmas Party",
+          dateLabel: "December 19, 2025",
+          time: "3:30 PM",
+          venue: "Stake Center",
+          description:
+              `Annual Ward Christmas party.
+              Food, performances, and activities for all members.`,
+          dressCode: "Modest casual",
+          contact: "Ward Leaders",
+          tags: ["Christmas", "Ward Event"]
+        },
+
+        // December 23 – Ward Temple Trip
+        23: {
+          title: "Ward Temple Trip",
+          dateLabel: "December 23, 2025",
+          time: "1:00 PM",
+          venue: "Manila Philippines Temple",
+          description:
+                `Ward temple trip before Christmas.
+
+                Fare:
+                • Youth – FREE
+                • Adults – ₱200`,
+          dressCode: "Sunday best",
+          contact: "Ward Leaders",
+          tags: ["Temple Trip", "Ward Activity"]
+        }
+      }
+    };
+
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    function getActivitiesFor(monthIndex, date) {
+      const monthData = activities[monthIndex];
+      if (!monthData) return null;
+      const entry = monthData[date];
+      if (!entry) return null;
+      return Array.isArray(entry) ? entry : [entry];
+    }
+
+    function buildCalendar(year, monthIndex) {
+      const calendarGrid = document.getElementById("calendarGrid");
+      const monthLabel = document.getElementById("calendarMonthLabel");
+      const monthShortLabel = document.getElementById("calendarMonthShortLabel");
+      const noActivitiesMessage = document.getElementById("noActivitiesMessage");
+
+      calendarGrid.innerHTML = "";
+
+      const hasActivitiesForMonth = !!activities[monthIndex];
+      noActivitiesMessage.style.display = hasActivitiesForMonth ? "none" : "block";
+
+      const monthName = monthNames[monthIndex];
+      monthLabel.textContent = `${monthName} ${year} · Tap a date to view activity details`;
+      monthShortLabel.textContent = `${monthName} ${year}`;
+
+      const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      weekdays.forEach((day) => {
+        const div = document.createElement("div");
+        div.className = "weekday";
+        div.textContent = day;
+        calendarGrid.appendChild(div);
+      });
+
+      const firstDay = new Date(year, monthIndex, 1).getDay();
+      const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) {
+        const emptyCell = document.createElement("div");
+        emptyCell.className = "day day-empty";
+        calendarGrid.appendChild(emptyCell);
+      }
+
+      for (let date = 1; date <= daysInMonth; date++) {
+        const acts = getActivitiesFor(monthIndex, date);
+        const hasActivity = !!acts && acts.length > 0;
+
+        const dayCell = document.createElement("div");
+        dayCell.className = "day" + (hasActivity ? " day-has-activity" : "");
+
+        const dayNumberSpan = document.createElement("span");
+        dayNumberSpan.className = "day-number";
+        dayNumberSpan.textContent = date;
+        dayCell.appendChild(dayNumberSpan);
+
+        if (hasActivity) {
+          const label = document.createElement("div");
+          label.className = "day-label";
+          if (acts.length === 1) {
+            label.textContent = acts[0].title;
+          } else {
+            label.textContent = acts[0].title + ` + ${acts.length - 1} more`;
+          }
+          dayCell.appendChild(label);
+
+          dayCell.addEventListener("click", () => {
+            showActivityDetails(year, monthIndex, date);
+          });
+        }
+
+        calendarGrid.appendChild(dayCell);
+      }
+    }
+
+    function showActivityDetails(year, monthIndex, date) {
+      const detailsContainer = document.getElementById("detailsContainer");
+      const monthName = monthNames[monthIndex];
+      const acts = getActivitiesFor(monthIndex, date);
+      if (!acts || acts.length === 0) return;
+
+      let html = `
+        <div class="details-header">
+          <div class="details-date">
+            <span>📅 ${monthName} ${date}, ${year}</span>
+            <span class="details-status">Scheduled</span>
+          </div>
+        </div>
+      `;
+
+      acts.forEach((activity, idx) => {
+        const tagsHtml = (activity.tags || [])
+          .map(tag => `<span class="chip">${tag}</span>`)
+          .join("");
+
+        html += `
+          <div style="margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px dashed #e5e7eb;">
+            <div class="details-title">
+              ${idx + 1}. ${activity.title}
+            </div>
+            <p class="details-body">
+              ${activity.description || ""}
+            </p>
+            <div class="details-meta">
+              <div>
+                <div class="meta-item-label">Date</div>
+                <div class="meta-item-value">${activity.dateLabel || `${monthName} ${date}, ${year}`}</div>
+              </div>
+              <div>
+                <div class="meta-item-label">Time</div>
+                <div class="meta-item-value">${activity.time || "TBA"}</div>
+              </div>
+              <div>
+                <div class="meta-item-label">Venue</div>
+                <div class="meta-item-value">${activity.venue || "TBA"}</div>
+              </div>
+              <div>
+                <div class="meta-item-label">Dress Code</div>
+                <div class="meta-item-value">${activity.dressCode || "TBA"}</div>
+              </div>
+              <div>
+                <div class="meta-item-label">Contact</div>
+                <div class="meta-item-value">${activity.contact || "TBA"}</div>
+              </div>
+            </div>
+            ${tagsHtml ? `<div class="chip-row">${tagsHtml}</div>` : ""}
+          </div>
+        `;
+      });
+
+      html += `
+        <div class="note-box">
+          Tip: You can copy-paste this info to your ward / stake GC. 
+          For updates, edit the <strong>activities</strong> object in the script.
+        </div>
+      `;
+
+      detailsContainer.innerHTML = html;
+    }
+
+    function showAllForMonth(year, monthIndex) {
+      const detailsContainer = document.getElementById("detailsContainer");
+      const monthName = monthNames[monthIndex];
+      const monthData = activities[monthIndex];
+
+      if (!monthData || Object.keys(monthData).length === 0) {
+        detailsContainer.innerHTML = `
+          <p class="muted-empty">
+            No activities listed yet for ${monthName} ${year}. You can add them in the <code>activities</code> object in the script.
+          </p>
+        `;
+        return;
+      }
+
+      let html = `
+        <div class="details-header">
+          <div class="details-date">
+            <span>📋 All activities for ${monthName} ${year}</span>
+          </div>
+        </div>
+      `;
+
+      Object.keys(monthData)
+        .map(Number)
+        .sort((a, b) => a - b)
+        .forEach((date) => {
+          const acts = getActivitiesFor(monthIndex, date) || [];
+          acts.forEach((a) => {
+            html += `
+              <div style="margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed #e5e7eb;">
+                <div style="font-size: 13px; color: #6b7280;">
+                  ${a.dateLabel || `${monthName} ${date}, ${year}`}
+                </div>
+                <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">
+                  ${a.title}
+                </div>
+                <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">
+                  ⏰ ${a.time || "TBA"} &middot; 📍 ${a.venue || "TBA"}
+                </div>
+                <div style="font-size: 12px; color: #6b7280;">
+                  ${a.description || ""}
+                </div>
+              </div>
+            `;
+          });
+        });
+
+      html += `
+        <div class="note-box">
+          Click a specific date on the calendar to see each activity with full details.
+        </div>
+      `;
+      detailsContainer.innerHTML = html;
+    }
+
+    const monthSelect = document.getElementById("monthSelect");
+    const viewAllBtn = document.getElementById("viewAllBtn");
+
+    // Default: December 2025 (month index 11)
+    buildCalendar(YEAR, 11);
+
+    monthSelect.addEventListener("change", (e) => {
+      const monthIndex = parseInt(e.target.value, 10);
+      buildCalendar(YEAR, monthIndex);
+      document.getElementById("detailsContainer").innerHTML = `
+        <p class="muted-empty">
+          Walang date na naka-select for this month. Click on a calendar date with a green dot to see the activity details.
+        </p>
+      `;
+    });
+
+    viewAllBtn.addEventListener("click", () => {
+      const monthIndex = parseInt(monthSelect.value, 10);
+      showAllForMonth(YEAR, monthIndex);
+    });
+  </script>
+</body>
+</html>
